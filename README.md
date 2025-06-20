@@ -9,35 +9,45 @@
 - 📋 **詳細レポート** - Markdown 形式の読みやすいレポート生成
 - 🎯 **具体的推奨** - スキル向上とポートフォリオ強化の提案
 - ⚡ **軽量** - 依存関係は `requests` のみ
+- 🤖 **Claude Code 連携** - AI による詳細分析とファンタジー称号生成
 
 ## 🚀 クイックスタート
 
-### 1. インストール
+### 方法1: 自動セットアップ（推奨）
 
 ```bash
+# プロジェクトをダウンロード
 git clone <this-repository>
 cd github-portfolio-analyzer
-pip install -r requirements_analyzer.txt
+
+# 自動セットアップ + 実行
+./scripts/run.sh
 ```
 
-### 2. GitHub Token の設定
+### 方法2: 手動セットアップ
+
+```bash
+# 1. プロジェクトセットアップ
+git clone <this-repository>
+cd github-portfolio-analyzer
+python3 scripts/setup.py
+
+# 2. GitHub Token を設定
+cp .env.example .env
+# .env ファイルを編集してトークンを設定
+
+# 3. 分析実行
+python3 scripts/analyze.py
+```
+
+### GitHub Token の取得方法
 
 [GitHub Settings > Personal access tokens](https://github.com/settings/tokens?type=beta) から Fine-grained token を作成：
 
-- Repository access: "All repositories"
-- Repository permissions: "Contents: Read-only"
+- Repository access: "All repositories" または "Selected repositories"
+- Repository permissions: "Contents: Read-only", "Metadata: Read"
 
-### 3. 実行
-
-```bash
-# .envファイルにトークンを設定
-echo "GITHUB_TOKEN=your_token_here" > .env
-
-# 分析実行
-python github_analyzer.py
-```
-
-📄 `report.md` ファイルに詳細な分析結果が生成されます！
+📄 結果は `results/` フォルダに保存されます！
 
 ## 📊 何が分析される？
 
@@ -62,44 +72,72 @@ python github_analyzer.py
 ## ⚙️ オプション
 
 ```bash
+# 特定のユーザーを分析
+python3 scripts/analyze.py --username octocat
+
 # より多くのリポジトリを分析
-python github_analyzer.py --max-repos 500
-
-# トークンを直接指定
-python github_analyzer.py --token your_github_token
-
-# カスタム出力ファイル名
-python github_analyzer.py --output my_report.md
+python3 scripts/analyze.py --max-repos 500
 
 # JSON形式でも保存
-python github_analyzer.py --save-json
+python3 scripts/analyze.py --save-json
 ```
 
 ## 📋 生成されるファイル
 
+結果は `results/` フォルダに保存されます：
+
 - **`report.md`** - メインの分析レポート
-- **`claude_analysis_prompt.md`** - Claude 用の詳細分析プロンプト
-- **`developer_card.html`** - 視覚的なスキルカード
+- **`claude_analysis_prompt.md`** - Claude Code 用の詳細分析プロンプト
 - **`portfolio_analysis.json`** - 詳細データ（--save-json オプション時）
 
 ## 🛠️ 技術仕様
 
-- **言語**: Python 3.7+
+- **言語**: Python 3.8+
 - **依存関係**: requests >= 2.25.0
 - **API**: GitHub REST API v3
 - **レート制限**: 5,000 requests/hour（認証あり）
+
+## 📁 プロジェクト構成
+
+```
+github-portfolio-analyzer/
+├── scripts/           # 実行スクリプト
+│   ├── run.sh        # 自動セットアップ + 実行
+│   ├── setup.py      # 初回セットアップ
+│   └── analyze.py    # 分析実行エントリポイント
+├── src/              # ソースコード
+│   └── github_analyzer.py
+├── results/          # 分析結果（自動生成）
+├── requirements.txt  # Python依存関係
+├── .env.example     # 環境変数テンプレート
+└── README.md        # このファイル
+```
 
 ## 🐛 トラブルシューティング
 
 ### 403 Forbidden エラー
 
-- GitHub トークンの権限を確認
-- Contents: Read-only 権限が設定されているか確認
+```bash
+# トークンの権限を確認
+curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
+```
 
 ### Rate Limit エラー
 
-- 1 時間待ってから再実行
-- `--max-repos` で分析対象を制限
+```bash
+# 残りAPI制限を確認
+curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/rate_limit
+```
+
+### Python環境の問題
+
+```bash
+# Python バージョン確認
+python3 --version  # 3.8以上が必要
+
+# 依存関係の手動インストール
+pip3 install -r requirements.txt
+```
 
 ## 🤝 Claude Code との連携
 
@@ -108,7 +146,17 @@ python github_analyzer.py --save-json
 - 📈 **詳細分析** - スキル評価とキャリア戦略の詳細レポート
 - 🎓 **学習計画** - 具体的な技術習得ロードマップ
 - 💼 **転職戦略** - 市場価値向上のための具体的提案
-- 🏆 **開発者称号** - あなたの特徴を表現するユニークな称号
+- 🏆 **開発者称号** - あなたの特徴を表現するユニークなファンタジー称号
+
+### Claude Code での使用例
+
+```bash
+# 1. 分析実行
+./scripts/run.sh
+
+# 2. 生成されたプロンプトをClaude Codeで使用
+# results/claude_analysis_prompt.md の内容をClaude Codeに貼り付け
+```
 
 ## 📄 ライセンス
 
