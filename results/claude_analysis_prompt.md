@@ -19,11 +19,11 @@
 - **現在のアクティビティ**: 現在進行形 - 活発に新しいプロジェクトに取り組んでいる
 
 ### 数値サマリー
-- **総コミット数**: 5
+- **総コミット数**: 10
 - **平均コミット数/repo**: 1.0
-- **テストカバレッジ**: 0/5 repos (0.0%)
-- **CI/CD導入率**: 1/5 repos (20.0%)
-- **READMEカバレッジ**: 4/5 repos (80.0%)
+- **テストカバレッジ**: 0/10 repos (0.0%)
+- **CI/CD導入率**: 1/10 repos (10.0%)
+- **READMEカバレッジ**: 7/10 repos (70.0%)
 
 ---
 
@@ -33,21 +33,22 @@
 - **GitHub ユーザー名**: kpab
 - **公開リポジトリ数**: 60
 - **フォロワー数**: 1
-- **分析対象リポジトリ**: 5
+- **分析対象リポジトリ**: 10
 
 ## 💻 技術スタック詳細
 
 ### プログラミング言語分布
 ```json
 {
-  "TypeScript": 167886,
+  "TypeScript": 535833,
+  "JavaScript": 117394,
   "Astro": 95970,
+  "CSS": 51532,
+  "HTML": 49232,
   "Go": 25426,
-  "JavaScript": 15249,
   "Python": 13373,
-  "CSS": 12184,
   "MDX": 7651,
-  "HTML": 1721,
+  "Shell": 2192,
   "Dockerfile": 405
 }
 ```
@@ -56,14 +57,14 @@
 ```json
 {
   "React": 2,
-  "Static Site Generator": 1
+  "Static Site Generator": 2
 }
 ```
 
 ### 開発ツール・技術
 ```json
 {
-  "npm/yarn": 3,
+  "npm/yarn": 4,
   "Docker Compose": 1,
   "Docker": 1
 }
@@ -72,9 +73,9 @@
 ### プロジェクトカテゴリ分布
 ```json
 {
+  "frontend": 6,
   "backend": 2,
-  "frontend": 2,
-  "other": 1
+  "other": 2
 }
 ```
 
@@ -84,27 +85,27 @@
 この開発者の技術的な強みと専門分野を技術スタックから分析：
 
 **言語的専門性:**
-- **TypeScript**: 49.4%の使用率
-- **Astro**: 28.2%の使用率
-- **Go**: 7.5%の使用率
+- **TypeScript**: 59.6%の使用率
+- **JavaScript**: 13.1%の使用率
+- **Astro**: 10.7%の使用率
 
 **技術領域の傾向:**
-- **フロントエンド志向**: 2/5 projects (40.0%)
-- **バックエンド志向**: 2/5 projects (40.0%)
-- **データ・ML志向**: 0/5 projects (0.0%)
-- **DevOps志向**: 0/5 projects (0.0%)
+- **フロントエンド志向**: 6/10 projects (60.0%)
+- **バックエンド志向**: 2/10 projects (20.0%)
+- **データ・ML志向**: 0/10 projects (0.0%)
+- **DevOps志向**: 0/10 projects (0.0%)
 
 ### プロジェクト品質傾向
 この開発者の開発品質・プロフェッショナリズムの指標：
 
 **品質管理の取り組み:**
-- **テストカバレッジ率**: 0/5 repos (0.0%) 
-- **CI/CD導入率**: 1/5 repos (20.0%)
-- **ドキュメント整備率**: 4/5 repos (80.0%)
+- **テストカバレッジ率**: 0/10 repos (0.0%) 
+- **CI/CD導入率**: 1/10 repos (10.0%)
+- **ドキュメント整備率**: 7/10 repos (70.0%)
 
 **プロジェクト管理スタイル:**
-- **平均プロジェクト複雑度**: 2/5 high-complexity projects
-- **技術多様性**: 9 programming languages across projects
+- **平均プロジェクト複雑度**: 3/10 high-complexity projects
+- **技術多様性**: 10 programming languages across projects
 - **フレームワーク活用度**: 2 different frameworks/libraries used
 
 ## 📋 分析依頼内容
