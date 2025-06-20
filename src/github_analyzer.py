@@ -123,12 +123,13 @@ class GitHubAnalyzer:
             # コミット数を正確に取得
             commits_response = self.session.get(f'https://api.github.com/repos/{owner}/{repo}/commits?per_page=1')
             if commits_response.status_code == 200:
-                # Linkヘッダーから総ページ数を取得
+                # Linkヘッダーから総ページ数を取得してコミット数を計算
                 link_header = commits_response.headers.get('Link', '')
                 if 'rel="last"' in link_header:
                     import re
                     last_page_match = re.search(r'page=(\d+).*rel="last"', link_header)
                     if last_page_match:
+                        # per_page=1なので、最後のページ数がコミット数
                         stats['commit_count'] = int(last_page_match.group(1))
                     else:
                         stats['commit_count'] = 1
