@@ -127,11 +127,16 @@ class GitHubAnalyzer:
                 link_header = commits_response.headers.get('Link', '')
                 if 'rel="last"' in link_header:
                     import re
-                    last_page_match = re.search(r'page=(\d+).*rel="last"', link_header)
-                    if last_page_match:
-                        # per_page=1なので、最後のページ数がコミット数
-                        commit_count = int(last_page_match.group(1))
-                        stats['commit_count'] = commit_count
+                    # rel="last"の直前にあるURL部分を抽出
+                    last_url_match = re.search(r'<([^>]+)>;\s*rel="last"', link_header)
+                    if last_url_match:
+                        last_url = last_url_match.group(1)
+                        page_match = re.search(r'[&?]page=(\d+)', last_url)
+                        if page_match:
+                            commit_count = int(page_match.group(1))
+                            stats['commit_count'] = commit_count
+                        else:
+                            stats['commit_count'] = 1
                     else:
                         stats['commit_count'] = 1
                 else:
