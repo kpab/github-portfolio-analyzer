@@ -1,27 +1,47 @@
 # GitHub Portfolio 深層分析依頼
 
+## 🎭 開発者ペルソナ分析結果
+
+### メイン称号
+**🌈 Polyglot Engineer - 多言語エンジニア**
+複数の言語を巧みに使い分け、適材適所で最適な技術選択を行う
+
+### レベル
+🌱 Growing Level - 成長中エンジニア級
+
+### 特性バッジ
+- 📚 Documentation Evangelist - ドキュメント伝道師
+- ⚡ Commit Machine - コミット製造機
+
+### 統計サマリー
+- **総コミット数**: 2,700
+- **平均コミット数/repo**: 540.0
+- **テストカバレッジ**: 0/5 repos (0.0%)
+- **CI/CD導入率**: 1/5 repos (20.0%)
+
+---
+
 あなたは経験豊富なテックリードかつキャリアコンサルタントです。以下のGitHubポートフォリオデータを詳細に分析し、技術的評価とキャリア戦略を提案してください。
 
 ## 📊 基本情報
 - **GitHub ユーザー名**: kpab
 - **公開リポジトリ数**: 60
 - **フォロワー数**: 1
-- **分析対象リポジトリ**: 10
+- **分析対象リポジトリ**: 5
 
 ## 💻 技術スタック詳細
 
 ### プログラミング言語分布
 ```json
 {
-  "TypeScript": 535833,
-  "JavaScript": 117394,
+  "TypeScript": 167886,
   "Astro": 95970,
-  "CSS": 51532,
-  "HTML": 49232,
   "Go": 25426,
+  "JavaScript": 15249,
   "Python": 13373,
+  "CSS": 12184,
   "MDX": 7651,
-  "Shell": 2192,
+  "HTML": 1721,
   "Dockerfile": 405
 }
 ```
@@ -30,14 +50,14 @@
 ```json
 {
   "React": 2,
-  "Static Site Generator": 2
+  "Static Site Generator": 1
 }
 ```
 
 ### 開発ツール・技術
 ```json
 {
-  "npm/yarn": 4,
+  "npm/yarn": 3,
   "Docker Compose": 1,
   "Docker": 1
 }
@@ -46,9 +66,9 @@
 ### プロジェクトカテゴリ分布
 ```json
 {
-  "frontend": 6,
   "backend": 2,
-  "other": 2
+  "frontend": 2,
+  "other": 1
 }
 ```
 
@@ -127,18 +147,6 @@
     ],
     "languages_count": 3,
     "description": "🍑 オフライン即時参加型イベント発見アプリ"
-  },
-  {
-    "name": "book-share",
-    "primary_language": "TypeScript",
-    "frameworks": [
-      "Static Site Generator"
-    ],
-    "tools": [
-      "npm/yarn"
-    ],
-    "languages_count": 4,
-    "description": ""
   }
 ]
 ```

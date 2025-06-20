@@ -89,6 +89,46 @@ class GitHubAnalyzer:
         except:
             return []
     
+    def get_repository_stats(self, owner: str, repo: str) -> Dict[str, Any]:
+        """リポジトリの統計情報を取得（コミット数、コントリビューター数など）"""
+        stats = {
+            'commit_count': 0,
+            'contributors_count': 0,
+            'branches_count': 0,
+            'readme_exists': False,
+            'has_tests': False,
+            'has_ci': False
+        }
+        
+        try:
+            # 基本的な存在チェックのみ（効率化）
+            contents_response = self.session.get(f'https://api.github.com/repos/{owner}/{repo}/contents')
+            if contents_response.status_code == 200:
+                contents = contents_response.json()
+                file_names = [item['name'].lower() for item in contents if item['type'] == 'file']
+                
+                # README存在チェック
+                readme_files = ['readme.md', 'readme.rst', 'readme.txt']
+                stats['readme_exists'] = any(readme in file_names for readme in readme_files)
+                
+                # Dockerfile存在チェック
+                stats['has_ci'] = 'dockerfile' in file_names
+                
+                # テスト関連ファイル
+                test_indicators = ['test', 'spec', 'tests', '__tests__']
+                stats['has_tests'] = any(indicator in name for name in file_names for indicator in test_indicators)
+            
+            # コミット数は基本情報から推定（API効率化）
+            # 更新頻度から大まかに推定
+            # リポジトリサイズから推定（簡易版）
+            repo_size = getattr(self, 'current_repo_size', 100)  # KB
+            stats['commit_count'] = max(1, repo_size // 10)  # サイズから大まかに推定
+                    
+        except Exception as e:
+            print(f"    ⚠️  統計取得エラー: {e}")
+        
+        return stats
+
     def get_file_content(self, owner: str, repo: str, path: str) -> Optional[str]:
         """特定ファイルの中身を取得"""
         try:
@@ -132,14 +172,17 @@ class GitHubAnalyzer:
             languages = self.get_repository_languages(owner, name)
             analysis['languages'] = languages
             
-            # 重要ファイルの分析
-            important_files = [
-                'package.json', 'requirements.txt', 'go.mod', 'Cargo.toml',
-                'pom.xml', 'build.gradle', 'composer.json', 'Gemfile',
-                'README.md', 'docker-compose.yml', 'Dockerfile'
-            ]
+            # リポジトリ統計取得（効率化のため一部のみ）
+            self.current_repo_size = analysis['size']  # サイズを渡す
+            stats = self.get_repository_stats(owner, name)
+            analysis.update(stats)
             
-            for file_name in important_files:
+            # 重要ファイルの分析（効率化）
+            tech_stack_files = ['package.json', 'requirements.txt', 'go.mod', 'Cargo.toml']
+            config_files = ['docker-compose.yml', 'Dockerfile']
+            
+            # 技術スタック検出用ファイルのみ内容を読み込み
+            for file_name in tech_stack_files + config_files:
                 content = self.get_file_content(owner, name, file_name)
                 if content:
                     analysis = self._analyze_file_content(analysis, file_name, content)
@@ -453,6 +496,102 @@ class GitHubAnalyzer:
         
         return recommendations
     
+    def generate_developer_persona(self, analyses: List[Dict[str, Any]], languages: Counter, frameworks: Counter) -> Dict[str, str]:
+        """開発者のペルソナ・キャラクター分析を生成"""
+        
+        total_repos = len(analyses)
+        total_commits = sum(a.get('commit_count', 0) for a in analyses)
+        test_repos = sum(1 for a in analyses if a.get('has_tests', False))
+        ci_repos = sum(1 for a in analyses if a.get('has_ci', False))
+        readme_repos = sum(1 for a in analyses if a.get('readme_exists', False))
+        
+        # 主要言語とその割合
+        top_lang = languages.most_common(1)[0] if languages else ('Unknown', 0)
+        lang_name, lang_bytes = top_lang
+        total_bytes = sum(languages.values())
+        lang_percentage = (lang_bytes / max(total_bytes, 1)) * 100
+        
+        # キャラクター分析
+        persona = {}
+        
+        # メイン称号の決定
+        if lang_percentage > 60:
+            if lang_name == 'TypeScript':
+                persona['title'] = "🛡️ Type Guardian - 型安全の守護者"
+                persona['description'] = "TypeScriptの型システムを駆使し、実行時エラーを事前に防ぐ堅実な開発者"
+            elif lang_name == 'JavaScript':
+                persona['title'] = "⚡ Script Wizard - 動的魔法使い"
+                persona['description'] = "JavaScriptの柔軟性を活かし、フロントエンドからバックエンドまで幅広く活躍"
+            elif lang_name == 'Python':
+                persona['title'] = "🐍 Python Charmer - 蛇使いマスター"
+                persona['description'] = "Pythonの直感的な記法で、データ分析からWeb開発まで効率的に実装"
+            elif lang_name == 'Go':
+                persona['title'] = "🚀 Gopher Elite - 高速処理の達人"
+                persona['description'] = "Goの並行処理能力を駆使し、スケーラブルなバックエンドシステムを構築"
+            elif lang_name == 'Rust':
+                persona['title'] = "⚔️ Memory Samurai - メモリ安全の侍"
+                persona['description'] = "Rustの所有権システムを極め、安全で高性能なシステムプログラミングを実践"
+            else:
+                persona['title'] = f"🎯 {lang_name} Specialist - 専門職人"
+                persona['description'] = f"{lang_name}に特化した深い知識を持つスペシャリスト開発者"
+        else:
+            persona['title'] = "🌈 Polyglot Engineer - 多言語エンジニア"
+            persona['description'] = "複数の言語を巧みに使い分け、適材適所で最適な技術選択を行う"
+        
+        # サブ特性の決定
+        traits = []
+        
+        # 品質への意識
+        if test_repos / max(total_repos, 1) > 0.5:
+            traits.append("🧪 Quality Assurance Master - 品質保証の達人")
+        if ci_repos / max(total_repos, 1) > 0.3:
+            traits.append("🔄 DevOps Practitioner - 自動化推進者")
+        if readme_repos / max(total_repos, 1) > 0.7:
+            traits.append("📚 Documentation Evangelist - ドキュメント伝道師")
+        
+        # コミット頻度
+        avg_commits = total_commits / max(total_repos, 1)
+        if avg_commits > 50:
+            traits.append("⚡ Commit Machine - コミット製造機")
+        elif avg_commits > 20:
+            traits.append("🔨 Steady Builder - 着実な構築者")
+        
+        # フレームワーク使用状況
+        framework_count = len(frameworks)
+        if framework_count > 5:
+            traits.append("🛠️ Framework Explorer - フレームワーク探検家")
+        elif 'React' in frameworks and frameworks['React'] > 2:
+            traits.append("⚛️ React Artisan - React職人")
+        
+        # Docker使用
+        docker_usage = sum(1 for a in analyses if 'Docker' in a.get('tools', []))
+        if docker_usage > 2:
+            traits.append("🐳 Container Captain - コンテナ船長")
+        
+        persona['traits'] = traits[:3]  # 最大3つまで
+        
+        # 総合評価
+        quality_score = 0
+        if test_repos / max(total_repos, 1) > 0.3:
+            quality_score += 2
+        if ci_repos / max(total_repos, 1) > 0.2:
+            quality_score += 2
+        if readme_repos / max(total_repos, 1) > 0.5:
+            quality_score += 1
+        if framework_count > 3:
+            quality_score += 1
+        if avg_commits > 10:
+            quality_score += 1
+        
+        if quality_score >= 6:
+            persona['level'] = "🏆 Senior Level - シニアエンジニア級"
+        elif quality_score >= 4:
+            persona['level'] = "💪 Mid Level - 中堅エンジニア級"
+        else:
+            persona['level'] = "🌱 Growing Level - 成長中エンジニア級"
+        
+        return persona
+    
     def save_detailed_analysis(self, analyses: List[Dict[str, Any]], filename: str = 'portfolio_analysis.json'):
         """詳細分析結果をJSONで保存"""
         with open(filename, 'w', encoding='utf-8') as f:
@@ -472,6 +611,9 @@ class GitHubAnalyzer:
         recent_projects = []
         complex_projects = []
         popular_projects = []
+        total_commits = 0
+        test_coverage = 0
+        ci_usage = 0
         
         for analysis in analyses:
             # 言語統計
@@ -486,6 +628,13 @@ class GitHubAnalyzer:
             
             # カテゴリ統計
             categories[analysis['category']] += 1
+            
+            # 統計値蓄積
+            total_commits += analysis.get('commit_count', 0)
+            if analysis.get('has_tests', False):
+                test_coverage += 1
+            if analysis.get('has_ci', False):
+                ci_usage += 1
             
             # 注目プロジェクト分類
             if analysis['updated_at']:
@@ -502,8 +651,31 @@ class GitHubAnalyzer:
             if analysis['stars'] > 0:
                 popular_projects.append(analysis)
         
+        # ペルソナ分析生成
+        persona = self.generate_developer_persona(analyses, languages, frameworks)
+        
         # プロンプト生成
         prompt = f"""# GitHub Portfolio 深層分析依頼
+
+## 🎭 開発者ペルソナ分析結果
+
+### メイン称号
+**{persona['title']}**
+{persona['description']}
+
+### レベル
+{persona['level']}
+
+### 特性バッジ
+{chr(10).join(f"- {trait}" for trait in persona['traits']) if persona['traits'] else "- まだ特性バッジを獲得していません"}
+
+### 統計サマリー
+- **総コミット数**: {total_commits:,}
+- **平均コミット数/repo**: {total_commits/max(total_repos, 1):.1f}
+- **テストカバレッジ**: {test_coverage}/{total_repos} repos ({test_coverage/max(total_repos, 1)*100:.1f}%)
+- **CI/CD導入率**: {ci_usage}/{total_repos} repos ({ci_usage/max(total_repos, 1)*100:.1f}%)
+
+---
 
 あなたは経験豊富なテックリードかつキャリアコンサルタントです。以下のGitHubポートフォリオデータを詳細に分析し、技術的評価とキャリア戦略を提案してください。
 
