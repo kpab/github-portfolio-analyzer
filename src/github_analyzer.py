@@ -833,9 +833,9 @@ class GitHubAnalyzer:
 
 ---
 
-## 📤 Claude Codeでの出力指示
+## 📤 分析結果の出力指示
 
-分析完了後、以下の形式で `detailed_analysis_report.md` を生成してください：
+分析完了後、以下の形式でMarkdown形式のレポートを出力してください：
 
 \`\`\`markdown
 # 🎭 {{決定した称号}} - GitHub Portfolio 詳細分析レポート
@@ -853,13 +853,26 @@ class GitHubAnalyzer:
 
 ## 🛠️ 具体的改善提案
 {{作るべきプロジェクト 学習ロードマップなど}}
+
+## 🎖️ 総合評価
+{{総合的な評価とまとめ}}
 \`\`\`
 
 **要求事項**:
 - 称号は必ず絵文字付きで、キャッチーかつ的確なものに
 - 各セクションは詳細かつ具体的に
 - スコアは根拠とともに提示
-- 改善提案は実行可能な具体案を"""
+- 改善提案は実行可能な具体案を
+- 出力は必ずMarkdown形式で
+
+**使用可能なAIサービス**:
+- Claude (Claude Code、Claude Desktop、claude.ai)
+- ChatGPT (GPT-4、GPT-4o)
+- Gemini
+- その他のLLMサービス
+
+**Claude Code使用時の追加指示**:
+分析結果は必ず `detailed_analysis_report.md` ファイルとしてローカルに保存してください。"""
 
         return prompt
     
