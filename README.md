@@ -44,8 +44,19 @@ python3 scripts/analyze.py
 
 [GitHub Settings > Personal access tokens](https://github.com/settings/tokens?type=beta) から Fine-grained token を作成：
 
-- Repository access: "All repositories" または "Selected repositories"
-- Repository permissions: "Contents: Read-only", "Metadata: Read"
+**Repository access:**
+- "All repositories" または "Selected repositories"
+
+**Repository permissions（必須）:**
+- **Contents**: Read-only
+- **Metadata**: Read
+
+**Repository permissions（推奨）:**
+- **Issues**: Read-only - プロジェクト活動度とメンテナンス状況の分析
+- **Pull requests**: Read-only - コードレビュー参加状況と協力開発スキルの評価  
+- **Commit statuses**: Read-only - CI/CD設定状況と開発プロセス成熟度の評価
+
+💡 **推奨権限を追加すると分析精度が大幅に向上します**
 
 📄 結果は `results/` フォルダに保存されます！
 
@@ -121,6 +132,10 @@ github-portfolio-analyzer/
 # トークンの権限を確認
 curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
 ```
+
+**権限不足の場合：**
+- 必須権限: Contents (Read-only), Metadata (Read)
+- 推奨権限: Issues, Pull requests, Commit statuses (すべてRead-only)
 
 ### Rate Limit エラー
 
