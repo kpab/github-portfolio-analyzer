@@ -496,8 +496,8 @@ class GitHubAnalyzer:
         
         return recommendations
     
-    def generate_developer_persona(self, analyses: List[Dict[str, Any]], languages: Counter, frameworks: Counter) -> Dict[str, str]:
-        """開発者のペルソナ・キャラクター分析を生成"""
+    def generate_human_focused_analysis(self, analyses, user_info):
+        """人に焦点を当てた開発者分析を生成"""
         
         total_repos = len(analyses)
         total_commits = sum(a.get('commit_count', 0) for a in analyses)
@@ -505,92 +505,103 @@ class GitHubAnalyzer:
         ci_repos = sum(1 for a in analyses if a.get('has_ci', False))
         readme_repos = sum(1 for a in analyses if a.get('readme_exists', False))
         
-        # 主要言語とその割合
-        top_lang = languages.most_common(1)[0] if languages else ('Unknown', 0)
-        lang_name, lang_bytes = top_lang
-        total_bytes = sum(languages.values())
-        lang_percentage = (lang_bytes / max(total_bytes, 1)) * 100
+        # 開発者の傾向分析
+        analysis = {
+            'working_style': {},
+            'collaboration_style': {},
+            'technical_habits': {},
+            'productivity_patterns': {},
+            'quality_consciousness': {}
+        }
         
-        # キャラクター分析
-        persona = {}
-        
-        # メイン称号の決定
-        if lang_percentage > 60:
-            if lang_name == 'TypeScript':
-                persona['title'] = "🛡️ Type Guardian - 型安全の守護者"
-                persona['description'] = "TypeScriptの型システムを駆使し、実行時エラーを事前に防ぐ堅実な開発者"
-            elif lang_name == 'JavaScript':
-                persona['title'] = "⚡ Script Wizard - 動的魔法使い"
-                persona['description'] = "JavaScriptの柔軟性を活かし、フロントエンドからバックエンドまで幅広く活躍"
-            elif lang_name == 'Python':
-                persona['title'] = "🐍 Python Charmer - 蛇使いマスター"
-                persona['description'] = "Pythonの直感的な記法で、データ分析からWeb開発まで効率的に実装"
-            elif lang_name == 'Go':
-                persona['title'] = "🚀 Gopher Elite - 高速処理の達人"
-                persona['description'] = "Goの並行処理能力を駆使し、スケーラブルなバックエンドシステムを構築"
-            elif lang_name == 'Rust':
-                persona['title'] = "⚔️ Memory Samurai - メモリ安全の侍"
-                persona['description'] = "Rustの所有権システムを極め、安全で高性能なシステムプログラミングを実践"
-            else:
-                persona['title'] = f"🎯 {lang_name} Specialist - 専門職人"
-                persona['description'] = f"{lang_name}に特化した深い知識を持つスペシャリスト開発者"
-        else:
-            persona['title'] = "🌈 Polyglot Engineer - 多言語エンジニア"
-            persona['description'] = "複数の言語を巧みに使い分け、適材適所で最適な技術選択を行う"
-        
-        # サブ特性の決定
-        traits = []
-        
-        # 品質への意識
-        if test_repos / max(total_repos, 1) > 0.5:
-            traits.append("🧪 Quality Assurance Master - 品質保証の達人")
-        if ci_repos / max(total_repos, 1) > 0.3:
-            traits.append("🔄 DevOps Practitioner - 自動化推進者")
-        if readme_repos / max(total_repos, 1) > 0.7:
-            traits.append("📚 Documentation Evangelist - ドキュメント伝道師")
-        
-        # コミット頻度
+        # === 作業スタイル分析 ===
         avg_commits = total_commits / max(total_repos, 1)
-        if avg_commits > 50:
-            traits.append("⚡ Commit Machine - コミット製造機")
+        if avg_commits > 100:
+            analysis['working_style']['commitment'] = "高頻度コミッター - 小さな変更を頻繁にコミットする丁寧な作業スタイル"
         elif avg_commits > 20:
-            traits.append("🔨 Steady Builder - 着実な構築者")
-        
-        # フレームワーク使用状況
-        framework_count = len(frameworks)
-        if framework_count > 5:
-            traits.append("🛠️ Framework Explorer - フレームワーク探検家")
-        elif 'React' in frameworks and frameworks['React'] > 2:
-            traits.append("⚛️ React Artisan - React職人")
-        
-        # Docker使用
-        docker_usage = sum(1 for a in analyses if 'Docker' in a.get('tools', []))
-        if docker_usage > 2:
-            traits.append("🐳 Container Captain - コンテナ船長")
-        
-        persona['traits'] = traits[:3]  # 最大3つまで
-        
-        # 総合評価
-        quality_score = 0
-        if test_repos / max(total_repos, 1) > 0.3:
-            quality_score += 2
-        if ci_repos / max(total_repos, 1) > 0.2:
-            quality_score += 2
-        if readme_repos / max(total_repos, 1) > 0.5:
-            quality_score += 1
-        if framework_count > 3:
-            quality_score += 1
-        if avg_commits > 10:
-            quality_score += 1
-        
-        if quality_score >= 6:
-            persona['level'] = "🏆 Senior Level - シニアエンジニア級"
-        elif quality_score >= 4:
-            persona['level'] = "💪 Mid Level - 中堅エンジニア級"
+            analysis['working_style']['commitment'] = "安定的コミッター - 適度なペースで着実に開発を進める"
         else:
-            persona['level'] = "🌱 Growing Level - 成長中エンジニア級"
+            analysis['working_style']['commitment'] = "一気集中型 - まとまった機能を一度に実装するタイプ"
         
-        return persona
+        # ドキュメント意識
+        readme_rate = readme_repos / max(total_repos, 1)
+        if readme_rate > 0.8:
+            analysis['working_style']['documentation'] = "ドキュメント完璧主義者 - 他者への配慮を重視する丁寧な開発者"
+        elif readme_rate > 0.5:
+            analysis['working_style']['documentation'] = "ドキュメント意識良好 - バランス感覚のある実践的な開発者"
+        elif readme_rate > 0.2:
+            analysis['working_style']['documentation'] = "コード重視派 - 実装に集中し、ドキュメントは後回しにしがち"
+        else:
+            analysis['working_style']['documentation'] = "ドキュメント軽視派 - コードで語るタイプ（要改善）"
+        
+        # === コラボレーションスタイル ===
+        # フォロワー数から判断
+        followers = user_info.get('followers', 0)
+        public_repos = user_info.get('public_repos', 0)
+        
+        if followers > 50:
+            analysis['collaboration_style']['visibility'] = "コミュニティリーダー - 影響力のある発信者"
+        elif followers > 10:
+            analysis['collaboration_style']['visibility'] = "アクティブメンバー - コミュニティに積極参加"
+        else:
+            analysis['collaboration_style']['visibility'] = "サイレントワーカー - 静かに開発に取り組む職人気質"
+        
+        # リポジトリ公開率
+        if public_repos > 30:
+            analysis['collaboration_style']['openness'] = "オープンソース推進派 - 積極的にコードを公開・共有"
+        elif public_repos > 10:
+            analysis['collaboration_style']['openness'] = "適度な公開派 - バランス良くコードを共有"
+        else:
+            analysis['collaboration_style']['openness'] = "プライベート重視派 - 慎重にコードを管理"
+        
+        # === 技術習慣 ===
+        test_rate = test_repos / max(total_repos, 1)
+        if test_rate > 0.7:
+            analysis['technical_habits']['testing'] = "テスト駆動開発者 - 品質第一の堅実な開発手法"
+        elif test_rate > 0.3:
+            analysis['technical_habits']['testing'] = "品質意識派 - 重要なプロジェクトではテストを実装"
+        elif test_rate > 0.1:
+            analysis['technical_habits']['testing'] = "テスト学習中 - 品質向上に取り組み始めている"
+        else:
+            analysis['technical_habits']['testing'] = "テスト後回し派 - スピード重視、品質は運用で解決しがち"
+        
+        ci_rate = ci_repos / max(total_repos, 1)
+        if ci_rate > 0.5:
+            analysis['technical_habits']['automation'] = "自動化マスター - 効率的なワークフローを構築"
+        elif ci_rate > 0.2:
+            analysis['technical_habits']['automation'] = "自動化導入中 - モダンな開発手法を学習・実践"
+        else:
+            analysis['technical_habits']['automation'] = "手動派 - 従来型の開発スタイルを維持"
+        
+        # === 成長パターン ===
+        recent_activity = len([a for a in analyses if self._is_recent_project(a)])
+        if recent_activity / max(total_repos, 1) > 0.6:
+            analysis['productivity_patterns']['activity'] = "現在進行形 - 活発に新しいプロジェクトに取り組んでいる"
+        elif recent_activity > 0:
+            analysis['productivity_patterns']['activity'] = "選択的アクティブ - 厳選したプロジェクトに集中"
+        else:
+            analysis['productivity_patterns']['activity'] = "過去の遺産 - 現在はあまりアクティブでない可能性"
+        
+        # === 問題解決スタイル ===
+        complexity_high = len([a for a in analyses if a.get('complexity') == 'high'])
+        if complexity_high / max(total_repos, 1) > 0.4:
+            analysis['technical_habits']['complexity'] = "複雑性挑戦者 - 難しい問題に積極的に取り組む"
+        elif complexity_high > 0:
+            analysis['technical_habits']['complexity'] = "バランス志向 - 適度な難易度のプロジェクトを選択"
+        else:
+            analysis['technical_habits']['complexity'] = "シンプル指向 - 分かりやすく実用的なソリューションを重視"
+        
+        return analysis
+    
+    def _is_recent_project(self, analysis: Dict[str, Any]) -> bool:
+        """プロジェクトが最近アクティブかどうか判定"""
+        try:
+            if analysis.get('updated_at'):
+                updated = datetime.fromisoformat(analysis['updated_at'].replace('Z', '+00:00'))
+                return updated > datetime.now().replace(tzinfo=updated.tzinfo) - timedelta(days=180)
+        except:
+            pass
+        return False
     
     def save_detailed_analysis(self, analyses: List[Dict[str, Any]], filename: str = 'portfolio_analysis.json'):
         """詳細分析結果をJSONで保存"""
@@ -608,9 +619,6 @@ class GitHubAnalyzer:
         categories = Counter()
         tools = Counter()
         
-        recent_projects = []
-        complex_projects = []
-        popular_projects = []
         total_commits = 0
         test_coverage = 0
         ci_usage = 0
@@ -635,45 +643,37 @@ class GitHubAnalyzer:
                 test_coverage += 1
             if analysis.get('has_ci', False):
                 ci_usage += 1
-            
-            # 注目プロジェクト分類
-            if analysis['updated_at']:
-                try:
-                    updated = datetime.fromisoformat(analysis['updated_at'].replace('Z', '+00:00'))
-                    if updated > datetime.now().replace(tzinfo=updated.tzinfo) - timedelta(days=180):
-                        recent_projects.append(analysis)
-                except:
-                    pass
-            
-            if analysis['complexity'] == 'high':
-                complex_projects.append(analysis)
-            
-            if analysis['stars'] > 0:
-                popular_projects.append(analysis)
         
-        # ペルソナ分析生成
-        persona = self.generate_developer_persona(analyses, languages, frameworks)
+        # 人間重視の分析生成
+        human_analysis = self.generate_human_focused_analysis(analyses, user_info)
         
         # プロンプト生成
         prompt = f"""# GitHub Portfolio 深層分析依頼
 
-## 🎭 開発者ペルソナ分析結果
+## 👤 開発者の人間性分析
 
-### メイン称号
-**{persona['title']}**
-{persona['description']}
+### 作業スタイル
+- **コミットパターン**: {human_analysis['working_style']['commitment']}
+- **ドキュメント意識**: {human_analysis['working_style']['documentation']}
 
-### レベル
-{persona['level']}
+### コラボレーションスタイル  
+- **コミュニティでの存在感**: {human_analysis['collaboration_style']['visibility']}
+- **オープンソース姿勢**: {human_analysis['collaboration_style']['openness']}
 
-### 特性バッジ
-{chr(10).join(f"- {trait}" for trait in persona['traits']) if persona['traits'] else "- まだ特性バッジを獲得していません"}
+### 技術習慣
+- **テスト・品質への取り組み**: {human_analysis['technical_habits']['testing']}
+- **自動化・効率化への姿勢**: {human_analysis['technical_habits']['automation']}
+- **複雑性への対応**: {human_analysis['technical_habits']['complexity']}
 
-### 統計サマリー
+### 開発活動パターン
+- **現在のアクティビティ**: {human_analysis['productivity_patterns']['activity']}
+
+### 数値サマリー
 - **総コミット数**: {total_commits:,}
 - **平均コミット数/repo**: {total_commits/max(total_repos, 1):.1f}
 - **テストカバレッジ**: {test_coverage}/{total_repos} repos ({test_coverage/max(total_repos, 1)*100:.1f}%)
 - **CI/CD導入率**: {ci_usage}/{total_repos} repos ({ci_usage/max(total_repos, 1)*100:.1f}%)
+- **READMEカバレッジ**: {len([a for a in analyses if a.get('readme_exists', False)])}/{total_repos} repos ({len([a for a in analyses if a.get('readme_exists', False)])/max(total_repos, 1)*100:.1f}%)
 
 ---
 
@@ -707,46 +707,65 @@ class GitHubAnalyzer:
 {json.dumps(dict(categories.most_common()), ensure_ascii=False, indent=2)}
 ```
 
-## 🎯 注目プロジェクト
+## 🎯 開発者能力分析
 
-### 最近のアクティブプロジェクト (過去6ヶ月)
-```json
-{json.dumps([{
-    'name': p['name'],
-    'primary_language': p['primary_language'],
-    'frameworks': p['frameworks'],
-    'complexity': p['complexity'],
-    'description': p['description'][:100] + '...' if len(p['description']) > 100 else p['description']
-} for p in recent_projects[:5]], ensure_ascii=False, indent=2)}
-```
+### 得意分野・専門性
+この開発者の技術的な強みと専門分野を技術スタックから分析：
 
-### 高複雑度プロジェクト
-```json
-{json.dumps([{
-    'name': p['name'],
-    'primary_language': p['primary_language'],
-    'frameworks': p['frameworks'],
-    'tools': p['tools'],
-    'languages_count': len(p['languages']),
-    'description': p['description'][:100] + '...' if len(p['description']) > 100 else p['description']
-} for p in complex_projects[:5]], ensure_ascii=False, indent=2)}
-```
+**言語的専門性:**
+{chr(10).join(f"- **{lang}**: {(bytes_count/sum(languages.values())*100):.1f}%の使用率" for lang, bytes_count in languages.most_common(3))}
 
-### 人気プロジェクト (スター獲得)
-```json
-{json.dumps([{
-    'name': p['name'],
-    'stars': p['stars'],
-    'forks': p['forks'],
-    'primary_language': p['primary_language'],
-    'frameworks': p['frameworks'],
-    'description': p['description'][:100] + '...' if len(p['description']) > 100 else p['description']
-} for p in popular_projects[:5]], ensure_ascii=False, indent=2)}
-```
+**技術領域の傾向:**
+- **フロントエンド志向**: {categories.get('frontend', 0)}/{total_repos} projects ({categories.get('frontend', 0)/max(total_repos, 1)*100:.1f}%)
+- **バックエンド志向**: {categories.get('backend', 0)}/{total_repos} projects ({categories.get('backend', 0)/max(total_repos, 1)*100:.1f}%)
+- **データ・ML志向**: {categories.get('data/ml', 0)}/{total_repos} projects ({categories.get('data/ml', 0)/max(total_repos, 1)*100:.1f}%)
+- **DevOps志向**: {categories.get('devops', 0)}/{total_repos} projects ({categories.get('devops', 0)/max(total_repos, 1)*100:.1f}%)
+
+### プロジェクト品質傾向
+この開発者の開発品質・プロフェッショナリズムの指標：
+
+**品質管理の取り組み:**
+- **テストカバレッジ率**: {test_coverage}/{total_repos} repos ({test_coverage/max(total_repos, 1)*100:.1f}%) 
+- **CI/CD導入率**: {ci_usage}/{total_repos} repos ({ci_usage/max(total_repos, 1)*100:.1f}%)
+- **ドキュメント整備率**: {len([a for a in analyses if a.get('readme_exists', False)])}/{total_repos} repos ({len([a for a in analyses if a.get('readme_exists', False)])/max(total_repos, 1)*100:.1f}%)
+
+**プロジェクト管理スタイル:**
+- **平均プロジェクト複雑度**: {sum(1 for a in analyses if a.get('complexity') == 'high')}/{total_repos} high-complexity projects
+- **技術多様性**: {len(languages)} programming languages across projects
+- **フレームワーク活用度**: {len(frameworks)} different frameworks/libraries used
 
 ## 📋 分析依頼内容
 
 以下の観点から詳細に分析・評価してください：
+
+### 0. 開発者称号の命名 🏆
+上記の人間性分析と技術データを基に、この開発者にふさわしい**キャッチーで面白い称号**を考案してください：
+
+**称号の例（ファンタジック・RPG風も歓迎）:**
+- 🛡️ TypeScript Guardian（型安全の守護者）
+- 🧙‍♂️ Code Wizard（コード魔法使い）
+- ⚔️ Bug Slayer（バグ討伐者）
+- 🏰 Architecture Architect（設計建築家）
+- 📜 Documentation Sage（ドキュメント賢者）
+- ⚡ Lightning Coder（稲妻コーダー）
+- 🌟 Framework Summoner（フレームワーク召喚師）
+- 🗡️ Legacy Code Warrior（レガシーコード戦士）
+- 🎯 Feature Sniper（機能狙撃手）
+- 🔮 API Alchemist（API錬金術師）
+- 🛠️ DevOps Paladin（DevOps聖騎士）
+- 🐉 Performance Dragon Tamer（パフォーマンス竜使い）
+- 🎭 Frontend Performer（フロントエンド芸人）
+- 🏔️ Backend Mountain Builder（バックエンド山築師）
+
+**不名誉称号も含めて（改善点として）:**
+- 📝 README Hermit（説明書隠者）
+- 🧪 Test Phobic（テスト恐怖症）
+- 💾 Commit Hoarder（コミット貯蔵癖）
+- 🔒 Solo Adventurer（一人冒険者）
+- 🐛 Bug Breeder（バグ養殖家）
+- 📊 Issue Collector（課題コレクター）
+
+**要求:** 称号は必ず絵文字付きで、その人の特徴を的確に表現し、少し面白みのあるものにしてください。
 
 ### 1. 技術的スキル評価 (各項目10点満点)
 - **フロントエンド技術力**
@@ -798,6 +817,253 @@ class GitHubAnalyzer:
 よろしくお願いします！"""
 
         return prompt
+    
+    def generate_developer_card_html(self, analyses: List[Dict[str, Any]], user_info: Dict[str, Any], languages: Counter, frameworks: Counter) -> str:
+        """開発者カード用のHTMLを生成"""
+        
+        human_analysis = self.generate_human_focused_analysis(analyses, user_info)
+        total_commits = sum(a.get('commit_count', 0) for a in analyses)
+        test_coverage = sum(1 for a in analyses if a.get('has_tests', False))
+        ci_usage = sum(1 for a in analyses if a.get('has_ci', False))
+        readme_coverage = sum(1 for a in analyses if a.get('readme_exists', False))
+        
+        # トップ3言語
+        top_languages = languages.most_common(3)
+        total_bytes = sum(languages.values())
+        
+        # トップフレームワーク
+        top_frameworks = frameworks.most_common(3)
+        
+        html = f"""
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Card - {user_info.get('login', 'Unknown')}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {{
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+        
+        .developer-card {{
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }}
+        
+        .developer-card::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
+        }}
+        
+        .header {{
+            text-align: center;
+            margin-bottom: 25px;
+        }}
+        
+        .username {{
+            font-size: 28px;
+            font-weight: 700;
+            margin: 10px 0 5px 0;
+            color: #2d3436;
+        }}
+        
+        .subtitle {{
+            color: #636e72;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }}
+        
+        .title-section {{
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }}
+        
+        .title {{
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }}
+        
+        .stats-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }}
+        
+        .stat-item {{
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }}
+        
+        .stat-number {{
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3436;
+            display: block;
+        }}
+        
+        .stat-label {{
+            font-size: 11px;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+        
+        .skills-section {{
+            margin-bottom: 20px;
+        }}
+        
+        .section-title {{
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        
+        .skill-bar {{
+            margin-bottom: 8px;
+        }}
+        
+        .skill-name {{
+            font-size: 12px;
+            color: #636e72;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }}
+        
+        .progress-bar {{
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }}
+        
+        .progress-fill {{
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }}
+        
+        .traits {{
+            margin-bottom: 20px;
+        }}
+        
+        .trait-item {{
+            background: #e8f5e8;
+            color: #2d5a2d;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            margin: 5px 5px 0 0;
+            display: inline-block;
+        }}
+        
+        .generated-info {{
+            text-align: center;
+            color: #636e72;
+            font-size: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }}
+    </style>
+</head>
+<body>
+    <div class="developer-card">
+        <div class="header">
+            <div class="username">{user_info.get('login', 'Unknown')}</div>
+            <div class="subtitle">GitHub Portfolio Analysis</div>
+        </div>
+        
+        <div class="title-section">
+            <div class="title">🎭 称号はClaude Codeで決定してもらってください</div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number">{len(analyses)}</span>
+                <span class="stat-label">Projects</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{total_commits:,}</span>
+                <span class="stat-label">Commits</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{test_coverage}/{len(analyses)}</span>
+                <span class="stat-label">Test Coverage</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{readme_coverage}/{len(analyses)}</span>
+                <span class="stat-label">Documentation</span>
+            </div>
+        </div>
+        
+        <div class="skills-section">
+            <div class="section-title">💻 Top Languages</div>
+            {chr(10).join(f'''
+            <div class="skill-bar">
+                <div class="skill-name">
+                    <span>{lang}</span>
+                    <span>{(bytes_count/max(total_bytes, 1)*100):.1f}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {(bytes_count/max(total_bytes, 1)*100):.1f}%"></div>
+                </div>
+            </div>''' for lang, bytes_count in top_languages)}
+        </div>
+        
+        <div class="skills-section">
+            <div class="section-title">🛠️ Frameworks</div>
+            {chr(10).join(f'<div class="trait-item">{framework} ({count})</div>' for framework, count in top_frameworks)}
+        </div>
+        
+        <div class="traits">
+            <div class="section-title">🏷️ Developer Traits</div>
+            <div class="trait-item">{human_analysis['working_style']['commitment'].split(' - ')[0]}</div>
+            <div class="trait-item">{human_analysis['working_style']['documentation'].split(' - ')[0]}</div>
+            <div class="trait-item">{human_analysis['collaboration_style']['visibility'].split(' - ')[0]}</div>
+        </div>
+        
+        <div class="generated-info">
+            Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')} • GitHub Portfolio Analyzer
+        </div>
+    </div>
+</body>
+</html>"""
+        
+        return html
 
 
 def main():
@@ -857,11 +1123,27 @@ def main():
         with open(claude_prompt_file, 'w', encoding='utf-8') as f:
             f.write(claude_prompt)
         
+        # 開発者カードHTML生成
+        languages = Counter()
+        frameworks = Counter()
+        for analysis in analyses:
+            for lang, bytes_count in analysis['languages'].items():
+                languages[lang] += bytes_count
+            for framework in analysis['frameworks']:
+                frameworks[framework] += 1
+        
+        card_html = analyzer.generate_developer_card_html(analyses, user_info, languages, frameworks)
+        card_file = 'developer_card.html'
+        with open(card_file, 'w', encoding='utf-8') as f:
+            f.write(card_html)
+        
         print(f"🤖 Claude Code分析用プロンプトを {claude_prompt_file} に保存しました")
+        print(f"🎨 開発者カードHTMLを {card_file} に保存しました")
         print("\n" + "="*80)
         print("📋 次の手順:")
         print("1. Claude Codeでこのプロンプトファイルを読み込んでください")
         print("2. 詳細な技術分析とキャリア提案を受け取れます")
+        print(f"3. {card_file} をブラウザで開くと美しいカードが表示されます")
         print("="*80)
         
     except requests.exceptions.RequestException as e:
