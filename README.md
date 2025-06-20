@@ -8,7 +8,7 @@
 - 📊 **包括的分析** - 全リポジトリの技術スタック、複雑度、カテゴリを自動分析
 - 📋 **詳細レポート** - Markdown 形式の読みやすいレポート生成
 - 🎯 **具体的推奨** - スキル向上とポートフォリオ強化の提案
-- ⚡ **軽量** - 依存関係は `requests` のみ
+- ⚡ **軽量** - 最小限の依存関係で動作
 - 🤖 **Claude Code 連携** - AI による詳細分析とファンタジー称号生成
 
 ## 🚀 クイックスタート
@@ -17,7 +17,7 @@
 
 ```bash
 # プロジェクトをダウンロード
-git clone <this-repository>
+git clone https://github.com/your-username/github-portfolio-analyzer.git
 cd github-portfolio-analyzer
 
 # 自動セットアップ + 実行
@@ -28,13 +28,13 @@ cd github-portfolio-analyzer
 
 ```bash
 # 1. プロジェクトセットアップ
-git clone <this-repository>
+git clone https://github.com/your-username/github-portfolio-analyzer.git
 cd github-portfolio-analyzer
 python3 scripts/setup.py
 
 # 2. GitHub Token を設定
-cp .env.example .env
-# .env ファイルを編集してトークンを設定
+# .env ファイルを作成してトークンを設定
+echo "GITHUB_TOKEN=your_token_here" > .env
 
 # 3. 分析実行
 python3 scripts/analyze.py
@@ -83,8 +83,8 @@ python3 scripts/analyze.py
 ## ⚙️ オプション
 
 ```bash
-# 特定のユーザーを分析
-python3 scripts/analyze.py --username octocat
+# 最大分析リポジトリ数を指定
+python3 scripts/analyze.py --max-repos 200
 
 # より多くのリポジトリを分析
 python3 scripts/analyze.py --max-repos 500
@@ -99,12 +99,16 @@ python3 scripts/analyze.py --save-json
 
 - **`report.md`** - メインの分析レポート
 - **`claude_analysis_prompt.md`** - Claude Code 用の詳細分析プロンプト
+- **`detailed_analysis_report.md`** - Claude Code生成の詳細分析レポート
 - **`portfolio_analysis.json`** - 詳細データ（--save-json オプション時）
 
 ## 🛠️ 技術仕様
 
 - **言語**: Python 3.8+
-- **依存関係**: requests >= 2.25.0
+- **依存関係**: 
+  - requests >= 2.25.0
+  - argparse >= 1.4.0  
+  - python-dateutil >= 2.8.0
 - **API**: GitHub REST API v3
 - **レート制限**: 5,000 requests/hour（認証あり）
 
@@ -112,16 +116,19 @@ python3 scripts/analyze.py --save-json
 
 ```
 github-portfolio-analyzer/
-├── scripts/           # 実行スクリプト
-│   ├── run.sh        # 自動セットアップ + 実行
-│   ├── setup.py      # 初回セットアップ
-│   └── analyze.py    # 分析実行エントリポイント
-├── src/              # ソースコード
+├── scripts/              # 実行スクリプト
+│   ├── run.sh           # 自動セットアップ + 実行
+│   ├── setup.py         # 初回セットアップ
+│   └── analyze.py       # 分析実行エントリポイント
+├── src/                 # ソースコード
 │   └── github_analyzer.py
-├── results/          # 分析結果（自動生成）
-├── requirements.txt  # Python依存関係
-├── .env.example     # 環境変数テンプレート
-└── README.md        # このファイル
+├── results/             # 分析結果（自動生成）
+│   ├── report.md        # メイン分析レポート
+│   └── claude_analysis_prompt.md  # Claude Code用プロンプト
+├── docs/                # ドキュメント
+├── requirements.txt     # Python依存関係
+├── LICENSE.md          # MITライセンス
+└── README.md           # このファイル
 ```
 
 ## 🐛 トラブルシューティング
