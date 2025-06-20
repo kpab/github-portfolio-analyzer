@@ -191,12 +191,9 @@
 
 ---
 
-## 📤 Claude Codeでの次のステップ
+## 📤 Claude Codeでの出力指示
 
-分析完了後、以下の形式で出力を生成してください：
-
-### 1. 詳細分析レポート（Markdown）
-以下のテンプレートで `detailed_analysis_report.md` を生成：
+分析完了後、以下の形式で `detailed_analysis_report.md` を生成してください：
 
 \`\`\`markdown
 # 🎭 {決定した称号} - GitHub Portfolio 詳細分析レポート
@@ -216,26 +213,8 @@
 {作るべきプロジェクト 学習ロードマップなど}
 \`\`\`
 
-### 2. 開発者カード（PDF生成用）
-以下の情報でHTMLを更新し、PDF変換の指示：
-
-\`\`\`html
-<!-- developer_card_final.html として保存 -->
-<div class="title-section">
-    <div class="title">{決定した絵文字付き称号}</div>
-</div>
-\`\`\`
-
-**PDF生成コマンド例**:
-\`\`\`bash
-# ブラウザでHTMLを開いてPDF印刷
-# または puppeteer/playwright使用
-npx playwright install
-\`\`\`
-
-### 3. 要求される出力ファイル
-1. `detailed_analysis_report.md` - 詳細分析レポート
-2. `developer_card_final.html` - 更新されたカード（称号入り）
-3. `developer_card.pdf` - PDF変換されたカード
-
-**注意**: 称号は必ず絵文字付きで、キャッチーかつ的確なものにしてください！
+**要求事項**:
+- 称号は必ず絵文字付きで、キャッチーかつ的確なものに
+- 各セクションは詳細かつ具体的に
+- スコアは根拠とともに提示
+- 改善提案は実行可能な具体案を

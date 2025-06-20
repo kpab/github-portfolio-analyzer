@@ -833,12 +833,9 @@ class GitHubAnalyzer:
 
 ---
 
-## 📤 Claude Codeでの次のステップ
+## 📤 Claude Codeでの出力指示
 
-分析完了後、以下の形式で出力を生成してください：
-
-### 1. 詳細分析レポート（Markdown）
-以下のテンプレートで `detailed_analysis_report.md` を生成：
+分析完了後、以下の形式で `detailed_analysis_report.md` を生成してください：
 
 \`\`\`markdown
 # 🎭 {{決定した称号}} - GitHub Portfolio 詳細分析レポート
@@ -858,29 +855,11 @@ class GitHubAnalyzer:
 {{作るべきプロジェクト 学習ロードマップなど}}
 \`\`\`
 
-### 2. 開発者カード（PDF生成用）
-以下の情報でHTMLを更新し、PDF変換の指示：
-
-\`\`\`html
-<!-- developer_card_final.html として保存 -->
-<div class="title-section">
-    <div class="title">{{決定した絵文字付き称号}}</div>
-</div>
-\`\`\`
-
-**PDF生成コマンド例**:
-\`\`\`bash
-# ブラウザでHTMLを開いてPDF印刷
-# または puppeteer/playwright使用
-npx playwright install
-\`\`\`
-
-### 3. 要求される出力ファイル
-1. `detailed_analysis_report.md` - 詳細分析レポート
-2. `developer_card_final.html` - 更新されたカード（称号入り）
-3. `developer_card.pdf` - PDF変換されたカード
-
-**注意**: 称号は必ず絵文字付きで、キャッチーかつ的確なものにしてください！"""
+**要求事項**:
+- 称号は必ず絵文字付きで、キャッチーかつ的確なものに
+- 各セクションは詳細かつ具体的に
+- スコアは根拠とともに提示
+- 改善提案は実行可能な具体案を"""
 
         return prompt
     
@@ -1189,27 +1168,12 @@ def main():
         with open(claude_prompt_file, 'w', encoding='utf-8') as f:
             f.write(claude_prompt)
         
-        # 開発者カードHTML生成
-        languages = Counter()
-        frameworks = Counter()
-        for analysis in analyses:
-            for lang, bytes_count in analysis['languages'].items():
-                languages[lang] += bytes_count
-            for framework in analysis['frameworks']:
-                frameworks[framework] += 1
-        
-        card_html = analyzer.generate_developer_card_html(analyses, user_info, languages, frameworks)
-        card_file = 'developer_card.html'
-        with open(card_file, 'w', encoding='utf-8') as f:
-            f.write(card_html)
-        
         print(f"🤖 Claude Code分析用プロンプトを {claude_prompt_file} に保存しました")
-        print(f"🎨 開発者カードHTMLを {card_file} に保存しました")
         print("\n" + "="*80)
         print("📋 次の手順:")
         print("1. Claude Codeでこのプロンプトファイルを読み込んでください")
         print("2. 詳細な技術分析とキャリア提案を受け取れます")
-        print(f"3. {card_file} をブラウザで開くと美しいカードが表示されます")
+        print("3. Claude Codeが `detailed_analysis_report.md` を生成します")
         print("="*80)
         
     except requests.exceptions.RequestException as e:
