@@ -17,7 +17,7 @@
 
 ```bash
 # プロジェクトをダウンロード
-git clone https://github.com/your-username/github-portfolio-analyzer.git
+git clone https://github.com/kpab/github-portfolio-analyzer.git
 cd github-portfolio-analyzer
 
 # 自動セットアップ + 実行
@@ -28,7 +28,7 @@ cd github-portfolio-analyzer
 
 ```bash
 # 1. プロジェクトセットアップ
-git clone https://github.com/your-username/github-portfolio-analyzer.git
+git clone https://github.com/kpab/github-portfolio-analyzer.git
 cd github-portfolio-analyzer
 python3 scripts/setup.py
 
