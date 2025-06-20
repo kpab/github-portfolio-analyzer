@@ -130,13 +130,15 @@ class GitHubAnalyzer:
                     last_page_match = re.search(r'page=(\d+).*rel="last"', link_header)
                     if last_page_match:
                         # per_page=1なので、最後のページ数がコミット数
-                        stats['commit_count'] = int(last_page_match.group(1))
+                        commit_count = int(last_page_match.group(1))
+                        stats['commit_count'] = commit_count
                     else:
                         stats['commit_count'] = 1
                 else:
                     # Linkヘッダーがない場合は1ページのみ
                     commits_data = commits_response.json()
-                    stats['commit_count'] = len(commits_data) if commits_data else 1
+                    commit_count = len(commits_data) if commits_data else 1
+                    stats['commit_count'] = commit_count
             else:
                 stats['commit_count'] = 1
                     
