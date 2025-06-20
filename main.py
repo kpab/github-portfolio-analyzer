@@ -349,9 +349,10 @@ def main():
         with st.expander("🔑 API Key の取得方法"):
             st.markdown("""
             **GitHub Personal Access Token:**
-            1. GitHub Settings > Developer settings > Personal access tokens
-            2. "Generate new token" > "Fine-grained personal access token"
-            3. 必要な権限: `repos` (全リポジトリアクセス)
+            1. GitHub Settings > Developer settings > Personal access tokens > Fine-grained tokens
+            2. "Generate new token" をクリック
+            3. Repository access で "All repositories" を選択
+            4. Repository permissions で "Contents: Read-only" を選択
 
             **Anthropic API Key:**
             1. https://console.anthropic.com/ にアクセス
