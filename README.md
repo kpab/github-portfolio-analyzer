@@ -34,7 +34,8 @@ python3 scripts/setup.py
 
 # 2. GitHub Token を設定
 # .env ファイルを作成してトークンを設定
-echo "GITHUB_TOKEN=your_token_here" > .env
+cp .env.example .env
+# .env ファイルを編集してトークンを設定
 
 # 3. 分析実行
 python3 scripts/analyze.py
@@ -128,6 +129,7 @@ github-portfolio-analyzer/
 ├── docs/                # ドキュメント
 ├── requirements.txt     # Python依存関係
 ├── LICENSE.md          # MITライセンス
+├── .env.example        # 環境変数テンプレート
 └── README.md           # このファイル
 ```
 
