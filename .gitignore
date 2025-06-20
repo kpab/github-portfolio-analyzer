@@ -14,7 +14,7 @@ ENV/
 # Analysis outputs
 report.md
 portfolio_analysis.json
-# *_report.md
+*_report.md
 *_analysis.json
 
 # IDE
