@@ -40,10 +40,10 @@ with st.sidebar:
         ["軽量（READMEとpackage.jsonのみ）", "標準（主要ファイル）", "詳細（全ファイル）"]
     )
 
-    max_repos = st.slider("分析対象リポジトリ数", 5, 50, 20)
+    max_repos = st.slider("分析対象リポジトリ数", 5, 500, 100)
 
 @st.cache_data(ttl=3600)
-def get_user_repositories(token, max_count=50):
+def get_user_repositories(token, max_count=500):
     """GitHub APIで全リポジトリを取得"""
     headers = {'Authorization': f'token {token}'}
     repos = []
