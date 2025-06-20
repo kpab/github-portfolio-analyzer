@@ -55,15 +55,23 @@ def main_wrapper():
     try:
         os.chdir(results_dir)
         
+        # .env ファイルを読み込み
+        env_file = project_root / ".env"
+        if env_file.exists():
+            print("✅ .env ファイルを読み込みました")
+            # .env ファイルを手動で読み込み
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        os.environ[key.strip()] = value.strip()
+        
         # 環境変数の確認
         if not os.getenv('GITHUB_TOKEN'):
-            env_file = project_root / ".env"
-            if env_file.exists():
-                print("✅ .env ファイルが見つかりました")
-            else:
-                print("⚠️  GitHub Token が設定されていません")
-                print(f"💡 {project_root}/.env ファイルを作成してGITHUB_TOKENを設定してください")
-                return 1
+            print("⚠️  GitHub Token が設定されていません")
+            print(f"💡 {project_root}/.env ファイルにGITHUB_TOKENを設定してください")
+            return 1
         
         # メイン処理実行
         main()
