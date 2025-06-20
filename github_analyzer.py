@@ -120,9 +120,24 @@ class GitHubAnalyzer:
             
             # コミット数は基本情報から推定（API効率化）
             # 更新頻度から大まかに推定
-            # リポジトリサイズから推定（簡易版）
-            repo_size = getattr(self, 'current_repo_size', 100)  # KB
-            stats['commit_count'] = max(1, repo_size // 10)  # サイズから大まかに推定
+            # コミット数を正確に取得
+            commits_response = self.session.get(f'https://api.github.com/repos/{owner}/{repo}/commits?per_page=1')
+            if commits_response.status_code == 200:
+                # Linkヘッダーから総ページ数を取得
+                link_header = commits_response.headers.get('Link', '')
+                if 'rel="last"' in link_header:
+                    import re
+                    last_page_match = re.search(r'page=(\d+).*rel="last"', link_header)
+                    if last_page_match:
+                        stats['commit_count'] = int(last_page_match.group(1))
+                    else:
+                        stats['commit_count'] = 1
+                else:
+                    # Linkヘッダーがない場合は1ページのみ
+                    commits_data = commits_response.json()
+                    stats['commit_count'] = len(commits_data) if commits_data else 1
+            else:
+                stats['commit_count'] = 1
                     
         except Exception as e:
             print(f"    ⚠️  統計取得エラー: {e}")
@@ -814,7 +829,58 @@ class GitHubAnalyzer:
 - 市場動向と照らし合わせた分析を
 - エンジニアのレベル感を考慮した現実的な提案を
 
-よろしくお願いします！"""
+よろしくお願いします！
+
+---
+
+## 📤 Claude Codeでの次のステップ
+
+分析完了後、以下の形式で出力を生成してください：
+
+### 1. 詳細分析レポート（Markdown）
+以下のテンプレートで `detailed_analysis_report.md` を生成：
+
+\`\`\`markdown
+# 🎭 {{決定した称号}} - GitHub Portfolio 詳細分析レポート
+
+## 👤 開発者プロフィール
+- **称号**: {{決定した称号}}
+- **専門分野**: {{主な得意分野}}
+- **レベル**: {{スキルレベル評価}}
+
+## 📊 技術スキル評価
+{{各項目の10点満点評価と詳細コメント}}
+
+## 💼 キャリア戦略
+{{年収予想 学習計画 転職戦略など}}
+
+## 🛠️ 具体的改善提案
+{{作るべきプロジェクト 学習ロードマップなど}}
+\`\`\`
+
+### 2. 開発者カード（PDF生成用）
+以下の情報でHTMLを更新し、PDF変換の指示：
+
+\`\`\`html
+<!-- developer_card_final.html として保存 -->
+<div class="title-section">
+    <div class="title">{{決定した絵文字付き称号}}</div>
+</div>
+\`\`\`
+
+**PDF生成コマンド例**:
+\`\`\`bash
+# ブラウザでHTMLを開いてPDF印刷
+# または puppeteer/playwright使用
+npx playwright install
+\`\`\`
+
+### 3. 要求される出力ファイル
+1. `detailed_analysis_report.md` - 詳細分析レポート
+2. `developer_card_final.html` - 更新されたカード（称号入り）
+3. `developer_card.pdf` - PDF変換されたカード
+
+**注意**: 称号は必ず絵文字付きで、キャッチーかつ的確なものにしてください！"""
 
         return prompt
     
